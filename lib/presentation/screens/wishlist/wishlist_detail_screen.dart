@@ -24,7 +24,7 @@ class WishItem {
 final selectedWishlistProvider = Provider<WishList>((ref) {
   return WishList(
     id: '3',
-    title: 'Korea Trip with Alex',
+    title: 'Korea Trip with Ruby',
     itemCount: 15,
     completedCount: 0,
   );
@@ -41,13 +41,19 @@ final wishlistItemsProvider = Provider<List<WishItem>>((ref) {
     WishItem(
       id: '2',
       title: 'Bike along Han River',
-      addedBy: 'Alex',
+      addedBy: 'Ruby',
       location: 'Seoul, South Korea',
     ),
     WishItem(
       id: '3',
       title: 'Visit Busan beaches',
-      addedBy: 'Jamie',
+      addedBy: 'Jam',
+      location: 'Busan, South Korea',
+    ),
+    WishItem(
+      id: '4',
+      title: 'Eat 냉면, 치킨, 국밥',
+      addedBy: 'Jam',
       location: 'Busan, South Korea',
     ),
   ];

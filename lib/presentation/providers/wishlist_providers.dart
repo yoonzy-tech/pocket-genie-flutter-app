@@ -23,7 +23,7 @@ final sharedListsProvider = Provider<List<WishList>>((ref) {
   return [
     WishList(
       id: '3',
-      title: 'Korea Trip with Alex',
+      title: 'Korea Trip with Ruby',
       itemCount: 15,
       completedCount: 0,
     ),
