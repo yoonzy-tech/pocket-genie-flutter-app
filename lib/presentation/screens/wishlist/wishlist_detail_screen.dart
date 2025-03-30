@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pocket_genie/presentation/screens/wishlist/add_wishlist_screen.dart';
+import 'package:pocket_genie/presentation/screens/wishlist/add_item_screen.dart';
 import 'package:pocket_genie/presentation/screens/wishlist/item_detail_screen.dart';
 
 // Models

@@ -1,70 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 
-// Sample categories provider
+// Sample category data
 final categoriesProvider = Provider<List<String>>((ref) {
   return [
-    'Travel',
     'Food',
-    'Activities',
+    'Sightseeing',
+    'Activity',
     'Shopping',
-    'Entertainment',
-    'Personal Growth',
-    'Health & Fitness',
-    'Career',
-    'Other',
+    'Accommodation',
+    'Transportation',
   ];
 });
 
-enum ListPrivacy {
-  private,
-  shared,
-  public,
-}
-
-class CreateListScreen extends ConsumerStatefulWidget {
-  const CreateListScreen({Key? key}) : super(key: key);
+class AddWishItemScreen extends ConsumerStatefulWidget {
+  const AddWishItemScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<CreateListScreen> createState() => _CreateListScreenState();
+  ConsumerState<AddWishItemScreen> createState() => _AddWishItemScreenState();
 }
 
-class _CreateListScreenState extends ConsumerState<CreateListScreen> {
+class _AddWishItemScreenState extends ConsumerState<AddWishItemScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController();
   String? _selectedCategory;
-  ListPrivacy _privacy = ListPrivacy.private;
-  File? _imageFile;
-  final _imagePicker = ImagePicker();
-  
-  @override 
+
+  @override
   void dispose() {
-    _nameController.dispose();
+    _titleController.dispose();
     _descriptionController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
-  
-  Future<void> _pickImage() async {
-    final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
-    
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
-  
-  void _createList() {
+
+  void _saveItem() {
     if (_formKey.currentState!.validate()) {
-      // In a real app, save the new list to Firebase
-      // with the data from form fields
-      
+      // In a real app, save to Firebase
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Wish list created successfully!'),
+          content: Text('Wish saved successfully!'),
           backgroundColor: Color(0xFF22C55E), // Success Green
         ),
       );
@@ -75,12 +51,12 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
   @override
   Widget build(BuildContext context) {
     final categories = ref.watch(categoriesProvider);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
         title: const Text(
-          'Create New Wish List',
+          'Add New Item',
           style: TextStyle(
             color: Color(0xFF333333),
             fontWeight: FontWeight.bold,
@@ -96,18 +72,21 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
           builder: (context, constraints) {
             final isTablet = constraints.maxWidth > 600;
             final horizontalPadding = isTablet ? 32.0 : 16.0;
-            
+
             return SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.all(horizontalPadding),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 24.0,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // List Name Field
+                      // Title field
                       const Text(
-                        'List Name',
+                        'Title',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -116,9 +95,9 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
-                        controller: _nameController,
+                        controller: _titleController,
                         decoration: InputDecoration(
-                          hintText: 'Enter a name for your wish list',
+                          hintText: 'What do you wish to do?',
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -143,14 +122,14 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a name for your list';
+                            return 'Please enter a title';
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 24),
-                      
-                      // Description Field
+
+                      // Description field
                       const Text(
                         'Description',
                         style: TextStyle(
@@ -164,7 +143,7 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                         controller: _descriptionController,
                         maxLines: 4,
                         decoration: InputDecoration(
-                          hintText: 'Describe what this wish list is about (optional)',
+                          hintText: 'Add details about this wish (optional)',
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -189,126 +168,7 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
-                      // Cover Image Section
-                      const Text(
-                        'Cover Image (Optional)',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          height: 180,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                              width: 1,
-                            ),
-                            image: _imageFile != null
-                                ? DecorationImage(
-                                    image: FileImage(_imageFile!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: _imageFile == null
-                              ? Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_photo_alternate,
-                                      size: 48,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'Add a cover image',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Privacy Options
-                      const Text(
-                        'Privacy',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.grey[300]!,
-                            width: 1,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            RadioListTile<ListPrivacy>(
-                              title: const Text('Private (Only you can view)'),
-                              value: ListPrivacy.private,
-                              groupValue: _privacy,
-                              activeColor: const Color(0xFFFFB347), // Gold Amber
-                              onChanged: (ListPrivacy? value) {
-                                setState(() {
-                                  _privacy = value!;
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                            ),
-                            RadioListTile<ListPrivacy>(
-                              title: const Text('Shared with friends'),
-                              value: ListPrivacy.shared,
-                              groupValue: _privacy,
-                              activeColor: const Color(0xFFFFB347), // Gold Amber
-                              onChanged: (ListPrivacy? value) {
-                                setState(() {
-                                  _privacy = value!;
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                            ),
-                            RadioListTile<ListPrivacy>(
-                              title: const Text('Public (Anyone can view)'),
-                              value: ListPrivacy.public,
-                              groupValue: _privacy,
-                              activeColor: const Color(0xFFFFB347), // Gold Amber
-                              onChanged: (ListPrivacy? value) {
-                                setState(() {
-                                  _privacy = value!;
-                                });
-                              },
-                              contentPadding: EdgeInsets.zero,
-                              dense: true,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      
+
                       // Category dropdown
                       const Text(
                         'Category',
@@ -361,24 +221,117 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 24),
+
+                      // Location field
+                      const Text(
+                        'Location',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _locationController,
+                        decoration: InputDecoration(
+                          hintText: 'Where is this wish located?',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: Colors.grey[300]!,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFFFB347), // Gold Amber
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.all(16),
+                          suffixIcon: IconButton(
+                            icon: const Icon(
+                              Icons.map,
+                              color: Color(0xFF4285F4), // Wish Blue
+                            ),
+                            onPressed: () {
+                              // Show map picker
+                            },
+                          ),
+                        ),
+                      ),
+
+                      // Add image section
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Add Image (Optional)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 120,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_photo_alternate_outlined,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap to add an image',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 32),
-                      
-                      // Create Button
+
+                      // Submit button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _createList,
+                          onPressed: _saveItem,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFB347), // Gold Amber
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             elevation: 0,
                           ),
                           child: const Text(
-                            'Create List',
+                            'Add to List',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -387,6 +340,32 @@ class _CreateListScreenState extends ConsumerState<CreateListScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Cancel button
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF666666),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

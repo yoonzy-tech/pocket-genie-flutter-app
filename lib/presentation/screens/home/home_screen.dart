@@ -1,49 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pocket_genie/presentation/providers/wishlist_providers.dart';
+import 'package:pocket_genie/presentation/screens/home/widgets/wishlist_card.dart';
+import 'package:pocket_genie/presentation/screens/wishlist/add_item_screen.dart';
+import 'package:pocket_genie/presentation/screens/wishlist/add_wishlist_screen.dart';
+import 'package:pocket_genie/presentation/screens/wishlist/wishlist_detail_screen.dart';
+import 'package:pocket_genie/presentation/widgets/section_header.dart';
 
-// Sample data providers - in a real app, these would connect to Firebase
-final myListsProvider = Provider<List<WishList>>((ref) {
-  return [
-    WishList(
-      id: '1',
-      title: 'Travel Adventures',
-      itemCount: 12,
-      completedCount: 3,
-    ),
-    WishList(
-      id: '2',
-      title: 'Food Exploration',
-      itemCount: 8,
-      completedCount: 5,
-    ),
-  ];
-});
-
-final sharedListsProvider = Provider<List<WishList>>((ref) {
-  return [
-    WishList(
-      id: '3',
-      title: 'Korea Trip with Alex',
-      itemCount: 15,
-      completedCount: 0,
-    ),
-  ];
-});
-
-// Models
-class WishList {
-  final String id;
-  final String title;
-  final int itemCount;
-  final int completedCount;
-
-  WishList({
-    required this.id,
-    required this.title,
-    required this.itemCount,
-    required this.completedCount,
-  });
-}
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -68,41 +31,35 @@ class HomeScreen extends ConsumerWidget {
                   floating: true,
                   pinned: true,
                   backgroundColor: Colors.white,
-                  // expandedHeight: 70,
-                  flexibleSpace: FlexibleSpaceBar(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.grey[200],
-                            radius: 18,
-                            child: Icon(Icons.person, color: Colors.grey[500]),
-                          ),
-                        ),
-                        const Text(
-                          "Ruby's Lists",
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        // const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 0.0),
-                          child: IconButton(
-                            icon: const Icon(Icons.add_box_outlined, color: Color(0xFF333333)),
-                            onPressed: () {
-                              // Handle creating new list
-                            },
-                          ),
-                        ),
-                      ],
+                  title: const Text(
+                    "Ruby's Lists",
+                    style: TextStyle(
+                      color: Color(0xFF333333),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    // centerTitle: false,
                   ),
+                  leading: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey[200],
+                      radius: 18,
+                      child: Icon(Icons.person, color: Colors.grey[500]),
+                    ),
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.add_box_outlined, color: Color(0xFF333333)),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateListScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
 
                 // Content
@@ -136,6 +93,14 @@ class HomeScreen extends ConsumerWidget {
                                 wishList: myLists[index],
                                 onTap: () {
                                   // Navigate to list details
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const WishListDetailScreen(
+                                        // wishList: myLists[index],
+                                      ),
+                                    ),
+                                  );
                                 },
                               );
                             },
@@ -152,6 +117,14 @@ class HomeScreen extends ConsumerWidget {
                                 wishList: myLists[index],
                                 onTap: () {
                                   // Navigate to list details
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const WishListDetailScreen(
+                                        // wishList: myLists[index],
+                                      ),
+                                    ),
+                                  );
                                 },
                               );
                             },
@@ -184,6 +157,14 @@ class HomeScreen extends ConsumerWidget {
                                 wishList: sharedLists[index],
                                 onTap: () {
                                   // Navigate to list details
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const WishListDetailScreen(
+                                        // wishList: myLists[index],
+                                      ),
+                                    ),
+                                  );
                                 },
                               );
                             },
@@ -200,6 +181,14 @@ class HomeScreen extends ConsumerWidget {
                                 wishList: sharedLists[index],
                                 onTap: () {
                                   // Navigate to list details
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const WishListDetailScreen(
+                                        // wishList: myLists[index],
+                                      ),
+                                    ),
+                                  );
                                 },
                               );
                             },
@@ -236,101 +225,6 @@ class HomeScreen extends ConsumerWidget {
         onTap: (index) {
           // Handle navigation
         },
-      ),
-    );
-  }
-}
-
-// Reusable widgets
-class SectionHeader extends StatelessWidget {
-  final String title;
-
-  const SectionHeader({
-    Key? key,
-    required this.title,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF333333),
-      ),
-    );
-  }
-}
-
-class WishListCard extends StatelessWidget {
-  final WishList wishList;
-  final VoidCallback onTap;
-
-  const WishListCard({
-    Key? key,
-    required this.wishList,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              offset: const Offset(0, 2),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    wishList.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${wishList.itemCount} items · ${wishList.completedCount} completed',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                shape: BoxShape.circle,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: const Icon(
-                Icons.arrow_forward,
-                color: Color(0xFF666666),
-                size: 20,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
