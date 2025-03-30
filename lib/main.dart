@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pocket_genie/firebase_options.dart';
 import 'package:pocket_genie/presentation/screens/home/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 // Example usage in main.dart
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     const ProviderScope(
       child: MyApp(),
